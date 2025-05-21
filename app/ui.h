@@ -1,0 +1,117 @@
+#ifndef UI_H
+#define UI_H
+
+#include <stdio.h>
+
+#include "laplace.h"
+
+
+/// @brief Read unsiged 8-bit integer from input
+/// @param msg Prompt
+/// @return User's input or -1 for error.
+static int get_u8(const char *msg);
+
+/// @brief Read operation code from User's input
+/// @return operation's code or -1 for error.
+///
+/// Operations Table
+/// ----------------
+/// 
+/// Code      Operation
+/// ----  ------------------
+///  0           Add
+///  1           Sub
+///  2    Multiply by Scalar 
+///  3         Opposite
+///  4        Transpose
+///  5        Determinant
+///  6     Multipliy Matrix
+/// -1    Invalid Operation
+static int get_operation(void);
+
+/// @brief Reads size for determinant
+/// @return 2 or 3 for size, -1 for invalid choice.
+///
+/// Note
+/// ----
+/// The co-processor only operates 2x2 or 3x3 matrixes
+/// for determinant calculation.
+static int get_size_for_determinant(void);
+
+/// @brief Prints a 5x5 matrix on terminal
+/// @param title Title of the section
+/// @param M     Matrix itself
+static void print_matrix(
+    const char *title, 
+    Matrix M
+);
+
+/// @brief Display the final result of the operation
+/// @param A      Matrix A
+/// @param B      Matrix B
+/// @param R      Result matrix
+/// @param opcode Operation
+static void display_result(
+    Matrix A,
+    Matrix B,
+    Matrix R,
+    unsigned opcode
+);
+
+
+int get_u8(const char *msg)
+{
+    int v;
+    printf("%s\n>>> ", msg);
+    if (scanf("%d", &v) != 1 || v < 0 || v > 255) {
+        fprintf(stderr, "Entre 0 e 255.\n");
+        return -1;
+    }
+    return v;
+}
+
+int get_operation(void)
+{
+    int op = get_u8("Digite o código da operação (0..7):");
+    if (op < 0 || op > 7) {
+        fprintf(stderr, "Operação inválida.\n");
+        return -1;
+    }
+    return op;
+}
+
+int get_size_for_determinant(void)
+{
+    int s = get_u8("Digite o tamanho da matriz (2 ou 3):");
+    if (s != 2 && s != 3) {
+        fprintf(stderr, "Tamanho inválido.\n");
+        return -1;
+    }
+    return s;
+}
+
+void print_matrix(const char *title, Matrix M)
+{
+    int r, c;
+    printf("\n%s\n", title);
+    for (r = 0; r < DIM; r++) {
+        for (c = 0; c < DIM; c++) {
+            printf("%4u", M[r][c]);
+        }
+        putchar('\n');
+    }
+}
+
+void display_result(
+    Matrix A,
+    Matrix B,
+    Matrix R,
+    unsigned opcode
+){
+    print_matrix("Matriz A:", A);
+    print_matrix("Matriz B:", B);
+    printf("\nOperação (%u)\n", opcode);
+    print_matrix("Resultado:", R);
+}
+
+#endif
