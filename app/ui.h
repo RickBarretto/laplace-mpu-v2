@@ -13,7 +13,8 @@ enum Operations {
     Transpose = 4,
     Determinant = 5,
     MatrixMult = 6,
-    InvalidOperation = 7
+    Quit = 7,
+    InvalidOperation = 8
 };
 
 const cstring op_repr[8] = {
@@ -24,6 +25,7 @@ const cstring op_repr[8] = {
     [Transpose] = "Transpose",
     [Determinant] = "Determinant",
     [MatrixMult] = "Matrix multiplication",
+    [Quit] = "Quit",
     [InvalidOperation] = "Invalid operation"
 };
 
