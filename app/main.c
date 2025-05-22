@@ -1,9 +1,8 @@
-/* main.c */
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "laplace.h"
+#include "parser.h"
 #include "ui.h"
 
 
@@ -23,24 +22,19 @@ int main(void)
                    ((char*)conn.base + PIO_STAT_OFFSET);
 
     // 2) default data
-    mpu_init_default_matrices(A, B, R);
+
+    ins.matrix_size = count_rows("input/a.lp");
+    parse_matrix(A, ins.matrix_size, "input/a.lp");
+    parse_matrix(B, ins.matrix_size, "input/b.lp");
 
     // 3) user input
     op = get_operation();
     if (op < 0) return EXIT_FAILURE;
     ins.opcode = (unsigned)op;
 
-    if (ins.opcode == 5) {
-        sz = get_size_for_determinant();
-        if (sz < 0) return EXIT_FAILURE;
-        ins.matrix_size = (unsigned)sz;
-    } else {
-        ins.matrix_size = 0;
-    }
-
     // 4) execute
     ins.base_cmd = mpu_build_base_cmd(ins.opcode, ins.matrix_size);
-    
+
     mpu_next_stage(pins, ins.base_cmd);
     mpu_store(A, pins, ins.base_cmd);
     mpu_store(B, pins, ins.base_cmd);
