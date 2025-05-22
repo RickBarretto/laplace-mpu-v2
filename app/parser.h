@@ -8,16 +8,24 @@
 #include "types.h"
 #include "laplace.h"
 
+/// @struct Scalar result from parsing.
+/// @public value : scalar result. 0 by default.
+/// @public ok : the status of the parsing.
 typedef struct Scalar {
     int8_t value;
     bool ok;
 } Scalar;
 
-int _is_comment(cstring line) {
+/// @brief Check if string is a comment line
+/// @param line content
+/// @return bool
+///
+/// All comments starts with '#', just like Python or Bash.
+bool _is_comment(cstring line) {
     return line[0] == '#';
 }
 
-int _is_space(cstring line) {
+bool _is_space(cstring line) {
     return (line[0] == ' ')
         or (line[0] == '\t')
         or (line[0] == '\r')
@@ -25,26 +33,48 @@ int _is_space(cstring line) {
         or (line[0] == '\0');
 }
 
-int _is_row(cstring line) {
+/// @brief Check if string is a matrix's row
+/// @param line content
+/// @return bool
+///
+/// A row is defined as: '[<num> <num> <num> ...]'.
+/// You don't need comma, only open and close square braces.
+bool _is_row(cstring line) {
     return line[0] == '[';
 }
 
+/// @brief Opens a file and prinrs the error,
+/// @param filename 
+/// @return FILE*. Otherwise, nil.
 FILE* _open_file(cstring filename) {
     FILE* file = fopen(filename, "r");
     if (!file) {
         printf("Failed to open input file: %s.\n", filename);
-        return 0;
+        return nil;
     }
     return file;
 }
 
+/// @brief Opens a file and closes at the end of the scope.
+///
+/// This macro apply a Python-like syntax for openning files, 
+/// closing at the end automatically.
+///
+/// Usage
+/// -----
+///         with_open("file.txt", file) {
+///             ... 
+///         } // file is closed and set to NULL here.
 #define with_open(filename, file)           \
     for (                                   \
-        FILE *file = _open_file(filename);   \
-        file != NULL;                       \
-        fclose(file), file = NULL           \
+        FILE *file = _open_file(filename);  \
+        file != nil;                        \
+        fclose(file), file = nil            \
     )
 
+/// @brief Counts the size of a matrix.
+/// @param filename 
+/// @return matrix's size
 int count_rows(cstring filename) {
     int count = 0;
 
@@ -59,7 +89,11 @@ int count_rows(cstring filename) {
     return count;
 }
 
-
+/// @brief Writes the matrix froma file into `matrix`.
+/// @param matrix Destiny matrix
+/// @param matrix_size size of the matrix
+/// @param filename file input
+/// @return parsing's status.
 Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
     cstring format = "";
 
@@ -106,7 +140,9 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
     return (Status){ .ok = true };
 }
 
-
+/// @brief Gets the scalar value from a file.
+/// @param filename input file's path
+/// @return scalar result
 Scalar parse_scalar(cstring filename) {
 
     Scalar result = {
