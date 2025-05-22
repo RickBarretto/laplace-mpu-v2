@@ -22,6 +22,7 @@ int main(void)
                    ((char*)conn.base + PIO_STAT_OFFSET);
 
     // 2) default data
+    // mpu_init_default_matrices(A, B, R);
 
     ins.matrix_size = count_rows("input/a.lp");
     parse_matrix(A, ins.matrix_size, "input/a.lp");
@@ -31,6 +32,23 @@ int main(void)
     op = get_operation();
     if (op < 0) return EXIT_FAILURE;
     ins.opcode = (unsigned)op;
+
+    if (op == 2) {
+        Scalar scalar = parse_scalar("input/scalar.lp");
+        if (!scalar.ok) {
+            return EXIT_FAILURE;
+        } else {
+            B[0][0] = scalar.value;
+        }
+    }
+
+    // if (ins.opcode == 5) {
+    //     sz = get_size_for_determinant();
+    //    if (sz < 0) return EXIT_FAILURE;
+    //    ins.matrix_size = (unsigned)sz;
+    //} else {
+    //    ins.matrix_size = 0;
+    //}
 
     // 4) execute
     ins.base_cmd = mpu_build_base_cmd(ins.opcode, ins.matrix_size);

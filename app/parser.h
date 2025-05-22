@@ -1,6 +1,7 @@
 #ifndef MATRIX_PARSER_H
 #define MATRIX_PARSER_H
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -8,6 +9,11 @@
 #include <ctype.h>
 
 #include "laplace.h"
+
+typedef struct Scalar {
+    int8_t value;
+    bool ok;
+} Scalar;
 
 int is_comment(char* line) {
     return line[0] == '#';
@@ -19,6 +25,10 @@ int is_space(char* line) {
         || (line[0] == '\r') 
         || (line[0] == '\n') 
         || (line[0] == '\0');
+}
+
+int is_row(char * line) {
+    return line[0] == '[';
 }
 
 FILE* open_file(char *filename) {
@@ -52,7 +62,7 @@ int count_rows(char *filename) {
         }
 
         while (fgets(line, sizeof(line), file)) {
-            if (line[0] == '[')
+            if (is_row(line))
                 count++;
         }
     });
@@ -63,6 +73,7 @@ int count_rows(char *filename) {
 
 int parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
     int i = 0;
+    int line_count = 0;
     int a, b, c, d, e;
     char* format = "";
     char line[256];
@@ -71,37 +82,34 @@ int parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
 
     switch (matrix_size)
     {
-    case 1: format = "[%d]";                break;
-    case 2: format = "[%d %d]";             break;
-    case 3: format = "[%d %d %d]";          break;
-    case 4: format = "[%d %d %d %d]";       break;
-    case 5: format = "[%d %d %d %d %d]";    break;
+    case 1: format = "[%hhd]";                        break;
+    case 2: format = "[%hhd %hhd]";                   break;
+    case 3: format = "[%hhd %hhd %hhd]";              break;
+    case 4: format = "[%hhd %hhd %hhd %hhd]";         break;
+    case 5: format = "[%hhd %hhd %hhd %hhd %hhd]";    break;
     default:
         printf("Invalid matrix size\n");
         return -1;
     }
 
     with_open(filename, file, {
-        for (i = 0; i < matrix_size; i++) {
-            if (!fgets(line, sizeof(line), file)) {
-                printf("File's line doesn't match the matrix size\n");
-                return -1;
+        while (fgets(line, sizeof(line), file)) {
+            line_count = i + 1;
+
+            if (is_row(line)) {
+                a = 0; b = 0; c = 0; d = 0; e = 0;
+                if (sscanf(line, format, &a, &b, &c, &d, &e) <= 0) {
+                    printf("[line: %d] Invalid syntax.\n", line_count);
+                    return -1;
+                }
+
+                matrix[i][0] = a;
+                matrix[i][1] = b;
+                matrix[i][2] = c;
+                matrix[i][3] = d;
+                matrix[i][4] = e;
+                i++;
             }
-
-            if (line[0] == '#')
-                continue;
-
-            a = 0; b = 0; c = 0; d = 0; e = 0;
-            if (sscanf(line, format, &a, &b, &c, &d, &e) <= 0) {
-                printf("[line: %d] Invalid syntax.\n", i + 1);
-                return -1;
-            }
-
-            matrix[i][0] = a;
-            matrix[i][1] = b;
-            matrix[i][2] = c;
-            matrix[i][3] = d;
-            matrix[i][4] = e;
         }
     });
 
@@ -109,26 +117,33 @@ int parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
 }
 
 
-int parse_scalar(char* filename) {
+Scalar parse_scalar(char* filename) {
     FILE *file = open_file(filename);
     int line_count = 1;
     char line[256] = "";
-    int value = 0;
 
-    with_open(filename, file, {
-        while (fgets(line, sizeof(line), file)) {
+    Scalar result = {
+        .value = 0,
+        .ok = true,
+    };
+
+    with_open(filename, file,
+    {
+        while (fgets(line, sizeof(line), file))
+        {
             if (is_comment(line) || is_space(line))
-                continue;
-
-            if (sscanf(line, "scalar: %d", &value) <= 0) {
+                line_count++;
+            else if (sscanf(line, "scalar: %hhd", &result.value) <= 0) {
                 printf("[line %d] Invalid syntax.\n", line_count);
+                puts("");
                 puts("Example of valid syntax:");
                 puts("scalar: 15");
-                return -1;
+                puts("");
+                result.ok = false;
+                return result;
             }
-            line_count++;
         }
     });
 
-    return 0;
+    return result;
 }
