@@ -5,8 +5,27 @@
 
 #include "laplace.h"
 
+enum Operations {
+    Add = 0,
+    Sub = 1,
+    ScalarMult = 2,
+    Opposite = 3,
+    Transpose = 4,
+    Determinant = 5,
+    MatrixMult = 6,
+    InvalidOperation = 7
+};
 
-
+const cstring op_repr[8] = {
+    [Add] = "Add",
+    [Sub] = "Sub",
+    [ScalarMult] = "Scalar multiplication",
+    [Opposite] = "Opposite",
+    [Transpose] = "Transpose",
+    [Determinant] = "Determinant",
+    [MatrixMult] = "Matrix multiplication",
+    [InvalidOperation] = "Invalid operation"
+};
 
 /// @brief Read unsiged 8-bit integer from input
 /// @param msg Prompt
