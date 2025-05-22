@@ -21,18 +21,18 @@ Bridge connect() {
 
 void disconnect(Bridge *bridge) {
     mpu_close_connection(&bridge->connection);
-    bridge->connected = false; 
+    bridge->connected = false;
 }
 
 #define with_connection(bridge)   \
     for (Bridge bridge = connect(); bridge.connected; disconnect(&bridge))
 
 
-inline void execute(
-    Instruction instruction, 
-    PinIO pins, 
-    Matrix matrix_a, 
-    Matrix matrix_b, 
+void execute(
+    Instruction instruction,
+    PinIO pins,
+    Matrix matrix_a,
+    Matrix matrix_b,
     Matrix result
 ) {
         instruction.base_cmd = mpu_build_base_cmd(instruction.opcode, instruction.matrix_size);
@@ -66,7 +66,7 @@ int main(void)
             case Add:
             case Sub:
             case MatrixMult:
-                
+
                 break;
 
             // Matrix x int => Matrix
@@ -120,17 +120,10 @@ int main(void)
         }
 
         // 4) execute
-
-        // execute(instruction, pins, matrix_a, matrix_b, result);
-        instruction.base_cmd = mpu_build_base_cmd(instruction.opcode, instruction.matrix_size);
-
-        mpu_next_stage(pins, instruction.base_cmd);
-        mpu_store(matrix_a, pins, instruction.base_cmd);
-        mpu_store(matrix_b, pins, instruction.base_cmd);
-        mpu_next_stage(pins, instruction.base_cmd);
-        mpu_load(result, pins, instruction.base_cmd);
+        execute(instruction, pins, matrix_a, matrix_b, result);
 
         // 5) print
         display_result(matrix_a, matrix_b, result, instruction.opcode);
     }
 }
+
