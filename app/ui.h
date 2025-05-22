@@ -17,7 +17,7 @@ enum Operations {
     InvalidOperation = 8
 };
 
-const cstring op_repr[8] = {
+const cstring op_repr[9] = {
     [Add] = "Add",
     [Sub] = "Sub",
     [ScalarMult] = "Scalar multiplication",
