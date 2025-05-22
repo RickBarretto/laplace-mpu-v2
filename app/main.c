@@ -55,6 +55,45 @@ int main(void)
             .stat = bridge.connection.base + PIO_STAT_OFFSET
         };
 
+    #ifdef TEST
+        bool running = true;
+        while (running) {
+
+            i8 operation = get_operation();
+            switch (operation)
+            {
+            // Matrix x Matrix => Matrix
+            case Add:
+            case Sub:
+            case MatrixMult:
+                
+                break;
+
+            // Matrix x int => Matrix
+            case ScalarMult:
+                break;
+
+            // Matrix => Matrix
+            case Opposite:
+            case Transpose:
+                break;
+
+            // Matrix => int
+            case Determinant:
+                break;
+
+            // App Operations
+            case Quit:
+                break;
+
+            // Invalid entry
+            default:
+                break;
+            }
+
+        }
+    #endif
+
         // 2) default data
 
         Matrix      matrix_a, matrix_b, result = {0};
