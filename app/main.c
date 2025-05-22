@@ -11,7 +11,7 @@ int main(void)
     Connection conn;
     PinIO      pins;
     Instruction ins;
-    Matrix      A, B, R;
+    Matrix      A, B, R = {0};
     int         op, sz;
 
     // 1) open + map
@@ -41,14 +41,6 @@ int main(void)
             B[0][0] = scalar.value;
         }
     }
-
-    // if (ins.opcode == 5) {
-    //     sz = get_size_for_determinant();
-    //    if (sz < 0) return EXIT_FAILURE;
-    //    ins.matrix_size = (unsigned)sz;
-    //} else {
-    //    ins.matrix_size = 0;
-    //}
 
     // 4) execute
     ins.base_cmd = mpu_build_base_cmd(ins.opcode, ins.matrix_size);
