@@ -1,0 +1,3 @@
+# Scalar factor
+
+10
