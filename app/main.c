@@ -14,8 +14,8 @@ int main(void)
 
     Connection connection = mpu_new_connection();
     PinIO pins = {
-        .cmd  = (volatile uint32_t *)((char*)connection.base + PIO_CMD_OFFSET),
-        .stat = (volatile uint32_t *)((char*)connection.base + PIO_STAT_OFFSET)
+        .cmd  = connection.base + PIO_CMD_OFFSET,
+        .stat = connection.base + PIO_STAT_OFFSET
     };
 
     // 2) default data
