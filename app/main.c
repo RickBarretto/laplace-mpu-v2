@@ -94,7 +94,4 @@ int main(void)
         // 5) print
         display_result(matrix_a, matrix_b, result, instruction.opcode);
     }
-
-    // 6) cleanup
-    return EXIT_SUCCESS;
 }
