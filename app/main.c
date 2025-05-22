@@ -1,6 +1,7 @@
 #include <iso646.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "laplace.h"
 #include "parser.h"
@@ -9,56 +10,52 @@
 
 int main(void)
 {
-    Connection conn;
-    PinIO      pins;
-    Instruction ins;
-    Matrix      A, B, R = {0};
-    int         op, sz;
-
     // 1) open + map
-    conn = mpu_new_connection();
-    pins.cmd  = (volatile uint32_t *)
-                   ((char*)conn.base + PIO_CMD_OFFSET);
-    pins.stat = (volatile uint32_t *)
-                   ((char*)conn.base + PIO_STAT_OFFSET);
+
+    Connection connection = mpu_new_connection();
+    PinIO pins = {
+        .cmd  = (volatile uint32_t *)((char*)connection.base + PIO_CMD_OFFSET),
+        .stat = (volatile uint32_t *)((char*)connection.base + PIO_STAT_OFFSET)
+    };
 
     // 2) default data
-    // mpu_init_default_matrices(A, B, R);
 
-    ins.matrix_size = count_rows("input/a.lp");
-    if (not parse_matrix(A, ins.matrix_size, "input/a.lp").ok)
+    Matrix      matrix_a, matrix_b, result = {0};
+    Instruction instruction;
+
+    instruction.matrix_size = count_rows("input/a.lp");
+    if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
         return EXIT_FAILURE;
 
-    if (not parse_matrix(B, ins.matrix_size, "input/b.lp").ok)
+    if (not parse_matrix(matrix_b, instruction.matrix_size, "input/b.lp").ok)
         return EXIT_FAILURE;
 
     // 3) user input
-    op = get_operation();
-    if (op < 0) return EXIT_FAILURE;
-    ins.opcode = (unsigned)op;
+    instruction.opcode = get_operation();
+    if (instruction.opcode < 0 or instruction.opcode > 6) return EXIT_FAILURE;
 
-    if (op == 2) {
+    if (instruction.opcode == 2) {
         Scalar scalar = parse_scalar("input/scalar.lp");
         if (!scalar.ok) {
             return EXIT_FAILURE;
         } else {
-            B[0][0] = scalar.value;
+            matrix_b[0][0] = scalar.value;
         }
     }
 
     // 4) execute
-    ins.base_cmd = mpu_build_base_cmd(ins.opcode, ins.matrix_size);
+    instruction.base_cmd = mpu_build_base_cmd(instruction.opcode, instruction.matrix_size);
 
-    mpu_next_stage(pins, ins.base_cmd);
-    mpu_store(A, pins, ins.base_cmd);
-    mpu_store(B, pins, ins.base_cmd);
-    mpu_next_stage(pins, ins.base_cmd);
-    mpu_load(R, pins, ins.base_cmd);
+    mpu_next_stage(pins, instruction.base_cmd);
+    mpu_store(matrix_a, pins, instruction.base_cmd);
+    mpu_store(matrix_b, pins, instruction.base_cmd);
+    mpu_next_stage(pins, instruction.base_cmd);
+    mpu_load(result, pins, instruction.base_cmd);
 
     // 5) print
-    display_result(A, B, R, ins.opcode);
+    display_result(matrix_a, matrix_b, result, instruction.opcode);
 
     // 6) cleanup
-    mpu_close_connection(&conn);
+    mpu_close_connection(&connection);
     return EXIT_SUCCESS;
 }
