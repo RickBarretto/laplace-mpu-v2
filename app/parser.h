@@ -2,13 +2,10 @@
 #define MATRIX_PARSER_H
 
 #include <iso646.h>
-#include <stdbool.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
-#include <stdlib.h>
-#include <ctype.h>
 
+#include "types.h"
 #include "laplace.h"
 
 typedef struct Scalar {
@@ -16,15 +13,11 @@ typedef struct Scalar {
     bool ok;
 } Scalar;
 
-typedef struct Status {
-    bool ok;
-} Status;
-
-int _is_comment(char* line) {
+int _is_comment(cstring line) {
     return line[0] == '#';
 }
 
-int _is_space(char* line) {
+int _is_space(cstring line) {
     return (line[0] == ' ')
         or (line[0] == '\t')
         or (line[0] == '\r')
@@ -32,11 +25,11 @@ int _is_space(char* line) {
         or (line[0] == '\0');
 }
 
-int _is_row(char * line) {
+int _is_row(cstring line) {
     return line[0] == '[';
 }
 
-FILE* _open_file(char *filename) {
+FILE* _open_file(cstring filename) {
     FILE* file = fopen(filename, "r");
     if (!file) {
         printf("Failed to open input file: %s.\n", filename);
@@ -52,7 +45,7 @@ FILE* _open_file(char *filename) {
         fclose(file), file = NULL           \
     )
 
-int count_rows(char *filename) {
+int count_rows(cstring filename) {
     char line[256];
     int count = 0;
 
@@ -67,9 +60,9 @@ int count_rows(char *filename) {
 }
 
 
-Status parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
+Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
+    cstring format = "";
     int i = 0;
-    char* format = "";
     char line[256];
     int8_t a, b, c, d, e = 0;
 
@@ -110,7 +103,7 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
 }
 
 
-Scalar parse_scalar(char* filename) {
+Scalar parse_scalar(cstring filename) {
     int line_count = 1;
     char line[256] = "";
 
