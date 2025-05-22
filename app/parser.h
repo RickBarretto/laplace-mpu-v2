@@ -16,6 +16,10 @@ typedef struct Scalar {
     bool ok;
 } Scalar;
 
+typedef struct Status {
+    bool ok;
+} Status;
+
 int _is_comment(char* line) {
     return line[0] == '#';
 }
@@ -63,7 +67,7 @@ int count_rows(char *filename) {
 }
 
 
-int parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
+Status parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
     int i = 0;
     char* format = "";
     char line[256];
@@ -78,7 +82,7 @@ int parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
     case 5: format = "[%hhd %hhd %hhd %hhd %hhd]";    break;
     default:
         printf("Invalid matrix size\n");
-        return -1;
+        return (Status){ .ok = false };
     }
 
     with_open(filename, file) {
@@ -89,7 +93,7 @@ int parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
                 a, b, c, d, e = 0;
                 if (sscanf(line, format, &a, &b, &c, &d, &e) <= 0) {
                     printf("[line: %d] Invalid syntax.\n", line_count);
-                    return -1;
+                    return (Status){ .ok = false };
                 }
 
                 matrix[i][0] = a;
@@ -102,7 +106,7 @@ int parse_matrix(Matrix matrix, uint8_t matrix_size, char* filename) {
         }
     }
 
-    return 0;
+    return (Status){ .ok = true };
 }
 
 

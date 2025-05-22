@@ -1,3 +1,4 @@
+#include <iso646.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -25,8 +26,11 @@ int main(void)
     // mpu_init_default_matrices(A, B, R);
 
     ins.matrix_size = count_rows("input/a.lp");
-    parse_matrix(A, ins.matrix_size, "input/a.lp");
-    parse_matrix(B, ins.matrix_size, "input/b.lp");
+    if (not parse_matrix(A, ins.matrix_size, "input/a.lp").ok)
+        return EXIT_FAILURE;
+
+    if (not parse_matrix(B, ins.matrix_size, "input/b.lp").ok)
+        return EXIT_FAILURE;
 
     // 3) user input
     op = get_operation();
