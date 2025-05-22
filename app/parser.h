@@ -90,7 +90,7 @@ i8 count_rows(cstring filename) {
         }
     }
 
-    return (count <= MATRIX_MAX_SIZE)
+    return (count <= MATRIX_MAX_SIZE)?
         count : -1;
 }
 
@@ -177,3 +177,5 @@ Scalar parse_scalar(cstring filename) {
         }
     }
 }
+
+#endif
