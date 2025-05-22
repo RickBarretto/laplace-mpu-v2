@@ -8,6 +8,8 @@
 #include "types.h"
 #include "laplace.h"
 
+#define MATRIX_MAX_SIZE 5
+
 /// @struct Scalar result from parsing.
 /// @public value : scalar result. 0 by default.
 /// @public ok : the status of the parsing.
@@ -74,19 +76,22 @@ FILE* _open_file(cstring filename) {
 
 /// @brief Counts the size of a matrix.
 /// @param filename 
-/// @return matrix's size
-int count_rows(cstring filename) {
-    int count = 0;
+/// @return matrix's size or -1 for error.
+i8 count_rows(cstring filename) {
+    i8 tolerance = MATRIX_MAX_SIZE + 1;
+    i8 count = -1;
 
     with_open(filename, file) {
         char line[256];
-        while (fgets(line, sizeof(line), file)) {
+        count = 0;
+        while (fgets(line, sizeof(line), file) and count <= tolerance) {
             if (_is_row(line))
                 count++;
         }
     }
 
-    return count;
+    return (count <= MATRIX_MAX_SIZE)
+        count : -1;
 }
 
 /// @brief Writes the matrix froma file into `matrix`.
