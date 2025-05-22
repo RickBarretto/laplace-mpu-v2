@@ -46,10 +46,10 @@ FILE* _open_file(cstring filename) {
     )
 
 int count_rows(cstring filename) {
-    char line[256];
     int count = 0;
 
     with_open(filename, file) {
+        char line[256];
         while (fgets(line, sizeof(line), file)) {
             if (_is_row(line))
                 count++;
@@ -62,9 +62,6 @@ int count_rows(cstring filename) {
 
 Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
     cstring format = "";
-    int i = 0;
-    char line[256];
-    int8_t a, b, c, d, e = 0;
 
     switch (matrix_size)
     {
@@ -79,23 +76,30 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
     }
 
     with_open(filename, file) {
+        char line[256] = "";
+        size_t line_count = 1;
+        size_t row = 0;
+
         while (fgets(line, sizeof(line), file)) {
-            int8_t line_count = i + 1;
+            int8_t a, b, c, d, e = 0;
+            int8_t line_count = row + 1;
 
             if (_is_row(line)) {
-                a, b, c, d, e = 0;
                 if (sscanf(line, format, &a, &b, &c, &d, &e) <= 0) {
                     printf("[line: %d] Invalid syntax.\n", line_count);
                     return (Status){ .ok = false };
                 }
 
-                matrix[i][0] = a;
-                matrix[i][1] = b;
-                matrix[i][2] = c;
-                matrix[i][3] = d;
-                matrix[i][4] = e;
-                i++;
+                matrix[row][0] = a;
+                matrix[row][1] = b;
+                matrix[row][2] = c;
+                matrix[row][3] = d;
+                matrix[row][4] = e;
+                
+                row++;
             }
+
+            line_count++;
         }
     }
 
@@ -104,8 +108,6 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
 
 
 Scalar parse_scalar(cstring filename) {
-    int line_count = 1;
-    char line[256] = "";
 
     Scalar result = {
         .value = 0,
@@ -113,6 +115,9 @@ Scalar parse_scalar(cstring filename) {
     };
 
     with_open(filename, file) {
+        char line[256] = "";
+        size_t line_count = 1;
+
         while (fgets(line, sizeof(line), file))
         {
             if (_is_comment(line) or _is_space(line))
@@ -125,9 +130,9 @@ Scalar parse_scalar(cstring filename) {
                 puts("");
                 result.ok = false;
                 return result;
+            } else {
+                return result;
             }
         }
     }
-
-    return result;
 }
