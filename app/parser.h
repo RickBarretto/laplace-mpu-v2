@@ -111,7 +111,7 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
     case 5: format = "[%hhd %hhd %hhd %hhd %hhd]";    break;
     default:
         printf("Invalid matrix size\n");
-        return (Status){ .ok = false };
+        return err();
     }
 
     with_open(filename, file) {
@@ -126,7 +126,7 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
             if (_is_row(line)) {
                 if (sscanf(line, format, &a, &b, &c, &d, &e) <= 0) {
                     printf("[line: %d] Invalid syntax.\n", line_count);
-                    return (Status){ .ok = false };
+                    return err();
                 }
 
                 matrix[row][0] = a;
@@ -142,7 +142,7 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
         }
     }
 
-    return (Status){ .ok = true };
+    return ok();
 }
 
 /// @brief Gets the scalar value from a file.
