@@ -72,10 +72,8 @@ int main(void)
                 int b_size = count_rows("input/a.lp");
                 instruction.matrix_size = a_size;
 
-                if (a_size != b_size) {
-                    puts("As matrizes devem ter mesmo tamanho");
+                if (not are_valid_matrices_size(a_size, b_size))
                     continue;
-                }
 
                 if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
                     continue;
@@ -97,6 +95,9 @@ int main(void)
             // Matrix x int => Matrix
             case ScalarMult: {
                 instruction.matrix_size = count_rows("input/a.lp");
+
+                if (not is_valid_matrix_size(instruction.matrix_size))
+                    continue;
 
                 if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
                     continue;
@@ -124,6 +125,9 @@ int main(void)
             case Transpose: {
                 instruction.matrix_size = count_rows("input/a.lp");
 
+                if (not is_valid_matrix_size(instruction.matrix_size))
+                    continue;
+
                 if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
                     continue;
 
@@ -138,6 +142,9 @@ int main(void)
             // Matrix => int
             case Determinant: {
                 instruction.matrix_size = count_rows("input/a.lp");
+
+                if (not is_valid_determinant_size(instruction.matrix_size))
+                    continue;
 
                 if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
                     continue;
