@@ -59,6 +59,11 @@ static int get_operation(void);
 /// @brief Wait for user input to continue
 void wait_for_enter();
 
+/// @brief Print a value on terminal
+/// @param title Title of the section
+/// @param value Value itself
+void print_value(char* title, int value);
+
 
 /// @brief Prints a 5x5 matrix on terminal
 /// @param title Title of the section
@@ -128,6 +133,12 @@ void print_matrix(const char *title, Matrix M, int size)
         }
         putchar('\n');
     }
+}
+
+
+void print_value(char* title, int value) {
+    printf("\n%s\n", title);
+    printf("%d\n", value);
 }
 
 
