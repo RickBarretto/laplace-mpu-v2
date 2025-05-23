@@ -66,19 +66,8 @@ static int get_size_for_determinant(void);
 /// @param M     Matrix itself
 static void print_matrix(
     const char *title, 
-    Matrix M
-);
-
-/// @brief Display the final result of the operation
-/// @param A      Matrix A
-/// @param B      Matrix B
-/// @param R      Result matrix
-/// @param opcode Operation
-static void display_result(
-    Matrix A,
-    Matrix B,
-    Matrix R,
-    unsigned opcode
+    Matrix M,
+    int size
 );
 
 
@@ -95,6 +84,14 @@ int get_u8(const char *msg)
 
 int get_operation(void)
 {
+
+    puts("Choose an operation...\n");
+
+    for (int i = 0; i < 8; i++) {
+        printf("%d. ", i);
+        puts(op_repr[i]);
+    }
+
     int op = get_u8("Digite o código da operação (0..7):");
     if (op < 0 || op > 7) {
         fprintf(stderr, "Operação inválida.\n");
@@ -113,28 +110,20 @@ int get_size_for_determinant(void)
     return s;
 }
 
-void print_matrix(const char *title, Matrix M)
+void print_matrix(const char *title, Matrix M, int size)
 {
     int r, c;
     printf("\n%s\n", title);
-    for (r = 0; r < DIM; r++) {
-        for (c = 0; c < DIM; c++) {
+    for (r = 0; r < size; r++) {
+        for (c = 0; c < size; c++) {
             printf("%4u", M[r][c]);
         }
         putchar('\n');
     }
 }
 
-void display_result(
-    Matrix A,
-    Matrix B,
-    Matrix R,
-    unsigned opcode
-){
-    print_matrix("Matriz A:", A);
-    print_matrix("Matriz B:", B);
-    printf("\nOperação (%u)\n", opcode);
-    print_matrix("Resultado:", R);
+void print_op(int op) {
+    printf("\nOperation: %s\n", op_repr[op]);
 }
 
 #endif

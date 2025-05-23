@@ -119,8 +119,8 @@ Status parse_matrix(Matrix matrix, uint8_t matrix_size, cstring filename) {
         size_t line_count = 1;
         size_t row = 0;
 
-        while (fgets(line, sizeof(line), file)) {
-            int8_t a, b, c, d, e = 0;
+        while (fgets(line, sizeof(line), file) and row < matrix_size) {
+            int8_t a = 0, b = 0, c = 0, d = 0, e = 0;
             int8_t line_count = row + 1;
 
             if (_is_row(line)) {

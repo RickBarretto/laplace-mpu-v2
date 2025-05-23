@@ -21,7 +21,7 @@ Bridge connect() {
 
 void disconnect(Bridge *bridge) {
     mpu_close_connection(&bridge->connection);
-    bridge->connected = false;
+    bridge->connected = false; 
 }
 
 #define with_connection(bridge)   \
@@ -29,10 +29,10 @@ void disconnect(Bridge *bridge) {
 
 
 void execute(
-    Instruction instruction,
-    PinIO pins,
-    Matrix matrix_a,
-    Matrix matrix_b,
+    Instruction instruction, 
+    PinIO pins, 
+    Matrix matrix_a, 
+    Matrix matrix_b, 
     Matrix result
 ) {
         instruction.base_cmd = mpu_build_base_cmd(instruction.opcode, instruction.matrix_size);
@@ -55,75 +55,116 @@ int main(void)
             .stat = bridge.connection.base + PIO_STAT_OFFSET
         };
 
-    #ifdef TEST
         bool running = true;
         while (running) {
+            Matrix      matrix_a = {0}, matrix_b = {0}, result = {0};
+            Instruction instruction = {};
 
             i8 operation = get_operation();
+            instruction.opcode = operation;
             switch (operation)
             {
             // Matrix x Matrix => Matrix
             case Add:
             case Sub:
-            case MatrixMult:
+            case MatrixMult: {
+                int a_size = count_rows("input/a.lp");
+                int b_size = count_rows("input/a.lp");
+                instruction.matrix_size = a_size;
 
+                if (a_size != b_size) {
+                    puts("As matrizes devem ter mesmo tamanho");
+                    continue;
+                }
+
+                if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
+                    continue;
+                
+                if (not parse_matrix(matrix_b, instruction.matrix_size, "input/b.lp").ok)
+                    continue;
+
+                execute(instruction, pins, matrix_a, matrix_b, result);
+
+                print_matrix("Matrix A", matrix_a, instruction.matrix_size);
+                print_matrix("Matrix B", matrix_b, instruction.matrix_size);
+                print_op(operation);
+                print_matrix("Result", result, instruction.matrix_size);
+                    
                 break;
+            }
+       
 
             // Matrix x int => Matrix
-            case ScalarMult:
+            case ScalarMult: {
+                instruction.matrix_size = count_rows("input/a.lp");
+
+                if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
+                    continue;
+
+                Scalar scalar = parse_scalar("input/scalar.lp");
+
+                if (scalar.ok) {
+                    matrix_b[0][0] = scalar.value;
+                    execute(instruction, pins, matrix_a, matrix_b, result);
+
+                    print_matrix("Matrix", matrix_a, instruction.matrix_size);
+                    puts("\nScalar");
+                    printf("%d\n", scalar.value);
+                    print_op(operation);
+                    print_matrix("Result", result, instruction.matrix_size);
+
+                }           
+                else continue;
+
                 break;
+            }
+                
 
             // Matrix => Matrix
             case Opposite:
-            case Transpose:
+            case Transpose: {
+                instruction.matrix_size = count_rows("input/a.lp");
+
+                if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
+                    continue;
+
+                execute(instruction, pins, matrix_a, matrix_b, result);
+
+                print_matrix("Matrix", matrix_a, instruction.matrix_size);
+                print_op(operation);
+                print_matrix("Result", result, instruction.matrix_size);
                 break;
+            }
 
             // Matrix => int
-            case Determinant:
+            case Determinant: {
+                instruction.matrix_size = count_rows("input/a.lp");
+
+                if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
+                    continue;
+        
+                execute(instruction, pins, matrix_a, matrix_b, result);
+
+                print_matrix("Matrix", matrix_a, instruction.matrix_size);
+                print_op(operation);
+                puts("\nResult");
+                printf("%d\n", result[0][0]);
+
                 break;
+            }
 
             // App Operations
-            case Quit:
+            case Quit: {
+                running = false;
                 break;
+            }
 
             // Invalid entry
-            default:
+            default: {
+                puts("Invalid operation!!!");
                 break;
             }
-
-        }
-    #endif
-
-        // 2) default data
-
-        Matrix      matrix_a, matrix_b, result = {0};
-        Instruction instruction;
-
-        instruction.matrix_size = count_rows("input/a.lp");
-        if (not parse_matrix(matrix_a, instruction.matrix_size, "input/a.lp").ok)
-            return EXIT_FAILURE;
-
-        if (not parse_matrix(matrix_b, instruction.matrix_size, "input/b.lp").ok)
-            return EXIT_FAILURE;
-
-        // 3) user input
-        instruction.opcode = get_operation();
-        if (instruction.opcode < 0 or instruction.opcode > 6) return EXIT_FAILURE;
-
-        if (instruction.opcode == 2) {
-            Scalar scalar = parse_scalar("input/scalar.lp");
-            if (!scalar.ok) {
-                return EXIT_FAILURE;
-            } else {
-                matrix_b[0][0] = scalar.value;
             }
         }
-
-        // 4) execute
-        execute(instruction, pins, matrix_a, matrix_b, result);
-
-        // 5) print
-        display_result(matrix_a, matrix_b, result, instruction.opcode);
     }
 }
-

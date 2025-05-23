@@ -1,3 +1,3 @@
 # Scalar factor
 
-10
+scalar: 5
