@@ -52,14 +52,6 @@ static int get_u8(const char *msg);
 /// -1    Invalid Operation
 static int get_operation(void);
 
-/// @brief Reads size for determinant
-/// @return 2 or 3 for size, -1 for invalid choice.
-///
-/// Note
-/// ----
-/// The co-processor only operates 2x2 or 3x3 matrixes
-/// for determinant calculation.
-static int get_size_for_determinant(void);
 
 /// @brief Prints a 5x5 matrix on terminal
 /// @param title Title of the section
@@ -98,16 +90,6 @@ int get_operation(void)
         return -1;
     }
     return op;
-}
-
-int get_size_for_determinant(void)
-{
-    int s = get_u8("Digite o tamanho da matriz (2 ou 3):");
-    if (s != 2 && s != 3) {
-        fprintf(stderr, "Tamanho inválido.\n");
-        return -1;
-    }
-    return s;
 }
 
 void print_matrix(const char *title, Matrix M, int size)
