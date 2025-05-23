@@ -4,6 +4,7 @@
 #include <stdio.h>
 
 #include "laplace.h"
+#include "types.h"
 
 
 // ─── Library API ──────────────────────────────────────────────────────────
@@ -73,6 +74,22 @@ static void print_matrix(
     Matrix M,
     int size
 );
+
+/// @brief Verify if matrix has valid size for any operation.
+/// @param size Matrix size
+/// @return true or false
+bool is_valid_matrix_size(int size);
+
+/// @brief Verify if a matrix has the right size for determinant operation
+/// @param size Matrix size
+/// @return true or false
+bool is_valid_determinant_size(int size);
+
+/// @brief Verify if both matrices have valid size for Matrix x Matrix operations.
+/// @param size_a Matrix A's size
+/// @param size_b Matrix B's size
+/// @return true or false
+bool are_valid_matrices_size(int size_a, int size_b);
 
 
 // ─── Library Functions ────────────────────────────────────────────────────
@@ -144,6 +161,41 @@ void print_value(char* title, int value) {
 
 void print_op(int op) {
     printf("\nOperation: %s\n", op_repr[op]);
+}
+
+
+bool is_valid_matrix_size(int size) {
+    if (size < 1 or size > 5) {
+        puts("Matrix must be 1x1, 2x2, 3x3, 4x4 or 5x5");
+        return false;
+    }
+
+    return true;
+}
+
+bool is_valid_determinant_size(int size) {
+    if (size != 2 or size != 3) {
+        puts("Matrix for determinant operation must be 2x2 or 3x3");
+        return false;
+    }
+
+    return true;
+}
+
+bool are_valid_matrices_size(int size_a, int size_b) {
+    bool is_valid_a = is_valid_matrix_size(size_a);
+    bool is_valid_b = is_valid_matrix_size(size_b);
+
+    if ((not is_valid_a) or (not is_valid_b)) {
+        return false;
+    }
+
+    if (size_a != size_b) {
+        puts("Matrices A and B must have the same size to operate.");
+        return false;
+    }
+
+    return true;
 }
 
 
