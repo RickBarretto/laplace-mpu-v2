@@ -56,6 +56,9 @@ static int get_u8(const char *msg);
 /// -1    Invalid Operation
 static int get_operation(void);
 
+/// @brief Wait for user input to continue
+void wait_for_enter();
+
 
 /// @brief Prints a 5x5 matrix on terminal
 /// @param title Title of the section
