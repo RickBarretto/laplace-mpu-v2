@@ -5,6 +5,10 @@
 
 #include "laplace.h"
 
+
+// ─── Library API ──────────────────────────────────────────────────────────
+
+
 enum Operations {
     Add = 0,
     Sub = 1,
@@ -63,6 +67,12 @@ static void print_matrix(
 );
 
 
+// ─── Library Functions ────────────────────────────────────────────────────
+
+
+// ─── Helpers ──────────────────────────────────────────────────────────────
+
+
 int get_u8(const char *msg)
 {
     int v;
@@ -73,6 +83,10 @@ int get_u8(const char *msg)
     }
     return v;
 }
+
+
+// ─── Library Functions ────────────────────────────────────────────────────
+
 
 int get_operation(void)
 {
