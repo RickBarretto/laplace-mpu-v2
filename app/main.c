@@ -87,6 +87,7 @@ int main(void)
                 print_matrix("Matrix B", matrix_b, instruction.matrix_size);
                 print_op(operation);
                 print_matrix("Result", result, instruction.matrix_size);
+                wait_for_enter();
                     
                 break;
             }
@@ -112,6 +113,7 @@ int main(void)
                     print_value("Scalar", scalar.value);
                     print_op(operation);
                     print_matrix("Result", result, instruction.matrix_size);
+                    wait_for_enter();
 
                 }           
                 else continue;
@@ -136,6 +138,7 @@ int main(void)
                 print_matrix("Matrix", matrix_a, instruction.matrix_size);
                 print_op(operation);
                 print_matrix("Result", result, instruction.matrix_size);
+                wait_for_enter();
                 break;
             }
 
@@ -153,7 +156,8 @@ int main(void)
 
                 print_matrix("Matrix", matrix_a, instruction.matrix_size);
                 print_op(operation);
-                print_value("Result", result[0][0])
+                print_value("Result", result[0][0]);
+                wait_for_enter();
 
                 break;
             }
