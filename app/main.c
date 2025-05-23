@@ -108,8 +108,7 @@ int main(void)
                     execute(instruction, pins, matrix_a, matrix_b, result);
 
                     print_matrix("Matrix", matrix_a, instruction.matrix_size);
-                    puts("\nScalar");
-                    printf("%d\n", scalar.value);
+                    print_value("Scalar", scalar.value);
                     print_op(operation);
                     print_matrix("Result", result, instruction.matrix_size);
 
@@ -147,8 +146,7 @@ int main(void)
 
                 print_matrix("Matrix", matrix_a, instruction.matrix_size);
                 print_op(operation);
-                puts("\nResult");
-                printf("%d\n", result[0][0]);
+                print_value("Result", result[0][0])
 
                 break;
             }
