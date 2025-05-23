@@ -133,8 +133,9 @@ int get_operation(void)
 
 
 void wait_for_enter() {
+    puts("");
     puts("Press [Enter] to continue...");
-    prinit(">>> ");
+    printf(">>> ");
     while (getchar() != '\n');
     getchar();
 }
