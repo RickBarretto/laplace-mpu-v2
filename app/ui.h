@@ -109,6 +109,15 @@ int get_operation(void)
     return op;
 }
 
+
+void wait_for_enter() {
+    puts("Press [Enter] to continue...");
+    prinit(">>> ");
+    while (getchar() != '\n');
+    getchar();
+}
+
+
 void print_matrix(const char *title, Matrix M, int size)
 {
     int r, c;
@@ -121,15 +130,10 @@ void print_matrix(const char *title, Matrix M, int size)
     }
 }
 
+
 void print_op(int op) {
     printf("\nOperation: %s\n", op_repr[op]);
 }
 
-void wait_for_enter() {
-    puts("Press [Enter] to continue...");
-    prinit(">>> ");
-    while (getchar() != '\n');
-    getchar();
-}
 
 #endif
