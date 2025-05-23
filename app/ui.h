@@ -122,4 +122,11 @@ void print_op(int op) {
     printf("\nOperation: %s\n", op_repr[op]);
 }
 
+void wait_for_enter() {
+    puts("Press [Enter] to continue...");
+    prinit(">>> ");
+    while (getchar() != '\n');
+    getchar();
+}
+
 #endif
