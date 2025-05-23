@@ -1,5 +1,7 @@
 # Laplace MPU (v2)
 
+![Laplace, Matrix Processor Unit](docs/banner.png)
+
 ## How to compile
 
 ```
