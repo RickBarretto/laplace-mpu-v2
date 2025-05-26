@@ -18,6 +18,10 @@ gcc -std=c99 -Iapp -Ilib app/main.c lib/laplace.s -o laplace
 
 *Observações: Você deve incluir as pastas `app/` e `lib/` para compilá-lo.*
 
+## Baixando pre-compilado
+
+Na aba [Releases](https://github.com/cldaniel101/pbl2-sistemas-digitais/releases) é possível ver dois arquivos, um arquivo zip, que contém o projeto Quartus pré-compilado e o binário da aplicação em C compilado para Linux ARMv7.
+
 ---
 
 ## 👥Equipe
