@@ -14,7 +14,7 @@ O projeto prioriza **baixo nível, eficiência e robustez**, promovendo a integr
 
 ```bash
 gcc -std=c99 -Iapp -Ilib app/main.c lib/laplace.s -o laplace
-````
+```
 
 *Observações: Você deve incluir as pastas `app/` e `lib/` para compilá-lo.*
 
