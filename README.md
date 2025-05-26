@@ -838,6 +838,6 @@ Para facilitar a compreensão geral e oferecer uma referência rápida, abaixo e
 
 ## ✅ Conclusão
 
-Este projeto demonstra como é possível construir um **pipeline completo de processamento embarcado**, interligando software e hardware de forma direta, eficiente e educacionalmente rica. Ao integrar FPGA, C99, e Assembly, conseguimos controlar com precisão cada etapa — do envio de bits à exibição dos resultados — consolidando conhecimentos fundamentais em sistemas digitais, organização de computadores e engenharia de software embarcado.
+Este projeto demonstra como é possível construir um co-processador de matriz usando o DE1-SoC (FPGA Cyclone V), interligando software e hardware de forma direta, eficiente e educacionalmente rica. Ao integrar FPGA, C99, e Assembly, conseguimos controlar com precisão cada etapa — do envio de bits à exibição dos resultados — consolidando conhecimentos fundamentais em Sistemas Digitais, organização de computadores e engenharia de software embarcado.
 
 Mais do que executar operações matemáticas, esta experiência mostrou o valor de arquiteturas bem projetadas, testes rigorosos e abstrações seguras — elementos essenciais para qualquer sistema crítico em tempo real. O código permanece modular e extensível, pronto para novas operações, modos de precisão ou até integração com interfaces gráficas.
