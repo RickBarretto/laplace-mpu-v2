@@ -58,7 +58,6 @@ O coração do projeto é o coprocessador, uma unidade lógica programada em **V
 
 Entre suas características mais relevantes, destacam-se:
 
-* **Pipeline de operações**: o processamento não ocorre de forma monolítica, mas é dividido em estágios sequenciais (ex: carregamento das matrizes A e B, execução da operação, exportação do resultado).
 * **Modularidade via FSM (Finite State Machine)**: toda a operação é controlada por uma máquina de estados clara e bem definida, que responde a comandos específicos vindos do host.
 * **Interface binária controlada**: a comunicação com o host se dá via dois registradores mapeados em memória, `pio_out[31:0]` (entrada) e `pio_in[31:0]` (saída), controlados pelo barramento leve HPS–FPGA.
 
@@ -71,7 +70,7 @@ Essa separação entre entrada e saída garante que o coprocessador possa operar
 Para permitir que um programa em C consiga se comunicar com o coprocessador, foi desenvolvida uma **biblioteca híbrida** contendo:
 
 * Um **cabeçalho em C** (`laplace.h`) com constantes, tipos e protótipos de funções.
-* Trechos **implementados em Assembly ARMv7**, especialmente os que manipulam diretamente os registradores de controle da FPGA (por exemplo, escritas bit-a-bit nos registradores `cmd` e `stat`).
+* Corpo da função **implementados em Assembly ARMv7**, especialmente os que manipulam diretamente os registradores de controle da FPGA (por exemplo, escritas bit-a-bit nos registradores `cmd` e `stat`).
 
 Essa biblioteca atua como uma **ponte transparente** entre o alto nível (aplicação C) e o baixo nível (registradores físicos da FPGA), abstraindo detalhes complexos como:
 
@@ -87,24 +86,25 @@ Ela foi pensada para ser **mínima, segura e previsível**. Com poucos arquivos,
 
 O terceiro bloco do projeto é a interface de linha de comando, escrita em **C99**, que permite ao usuário interagir com o coprocessador de maneira intuitiva. Essa aplicação é composta por vários arquivos modulares:
 
-* `main.c` — loop principal, inicialização da conexão e chamada das funções da biblioteca
-* `parser.c` / `parser.h` — leitura e validação de arquivos `.lp` que representam matrizes ou escalares
-* `ui.c` / `ui.h` — interação com o terminal, prints e mensagens de erro
-* `types.h` — tipos auxiliares e enums que representam as operações
+* `main.c` — loop principal, inicialização da conexão e chamada das funções da biblioteca e pedidos de interação com o usuário.
+* `parser.h` — leitura e validação de arquivos `.lp` que representam matrizes ou escalares
+* `ui.h` — interação com o terminal.
+* `types.h` — tipos auxiliares.
 
 Destaque especial vai para o uso de uma **DSL (Domain Specific Language)** chamada *Laplace*, que facilita a entrada de dados pelo usuário. A linguagem permite:
 
 * Representação textual simples de matrizes e escalares
-* Comentários inline e sintaxe tolerante a erros
+* Comentários e sintaxe tolerante a erros
 * Detecção automática de tamanho da matriz
 * Validação detalhada com mensagens amigáveis
 
 A escolha pelo padrão **C99** foi deliberada. O projeto se beneficia de recursos como:
 
-* Tipos de largura fixa (`int8_t`, `uint32_t`, etc.)
+* Tipos de inteiros de tamanho fixo (`int8_t`, `uint32_t`, etc.)
 * Declarações dentro de blocos
 * Melhor suporte à modularização
 * Legibilidade e segurança de tipo
+* Regras de declaração de variáveis mais legíveis e intuitivas.
 
 Isso tudo contribui para que o código da aplicação seja mais robusto, moderno e fácil de manter, especialmente em comparação com o antigo padrão C89.
 
