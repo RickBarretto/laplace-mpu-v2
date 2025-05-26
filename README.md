@@ -14,9 +14,13 @@ O projeto prioriza **baixo nível, eficiência e robustez**, promovendo a integr
 
 ```bash
 gcc -std=c99 -Iapp -Ilib app/main.c lib/laplace.s -o laplace
-````
+```
 
 *Observações: Você deve incluir as pastas `app/` e `lib/` para compilá-lo.*
+
+## Baixando pre-compilado
+
+Na aba [Releases](https://github.com/cldaniel101/pbl2-sistemas-digitais/releases) é possível ver dois arquivos, um arquivo zip, que contém o projeto Quartus pré-compilado e o binário da aplicação em C compilado para Linux ARMv7.
 
 ---
 
@@ -54,7 +58,6 @@ O coração do projeto é o coprocessador, uma unidade lógica programada em **V
 
 Entre suas características mais relevantes, destacam-se:
 
-* **Pipeline de operações**: o processamento não ocorre de forma monolítica, mas é dividido em estágios sequenciais (ex: carregamento das matrizes A e B, execução da operação, exportação do resultado).
 * **Modularidade via FSM (Finite State Machine)**: toda a operação é controlada por uma máquina de estados clara e bem definida, que responde a comandos específicos vindos do host.
 * **Interface binária controlada**: a comunicação com o host se dá via dois registradores mapeados em memória, `pio_out[31:0]` (entrada) e `pio_in[31:0]` (saída), controlados pelo barramento leve HPS–FPGA.
 
@@ -67,7 +70,7 @@ Essa separação entre entrada e saída garante que o coprocessador possa operar
 Para permitir que um programa em C consiga se comunicar com o coprocessador, foi desenvolvida uma **biblioteca híbrida** contendo:
 
 * Um **cabeçalho em C** (`laplace.h`) com constantes, tipos e protótipos de funções.
-* Trechos **implementados em Assembly ARMv7**, especialmente os que manipulam diretamente os registradores de controle da FPGA (por exemplo, escritas bit-a-bit nos registradores `cmd` e `stat`).
+* Corpo da função **implementados em Assembly ARMv7**, especialmente os que manipulam diretamente os registradores de controle da FPGA (por exemplo, escritas bit-a-bit nos registradores `cmd` e `stat`).
 
 Essa biblioteca atua como uma **ponte transparente** entre o alto nível (aplicação C) e o baixo nível (registradores físicos da FPGA), abstraindo detalhes complexos como:
 
@@ -83,24 +86,25 @@ Ela foi pensada para ser **mínima, segura e previsível**. Com poucos arquivos,
 
 O terceiro bloco do projeto é a interface de linha de comando, escrita em **C99**, que permite ao usuário interagir com o coprocessador de maneira intuitiva. Essa aplicação é composta por vários arquivos modulares:
 
-* `main.c` — loop principal, inicialização da conexão e chamada das funções da biblioteca
-* `parser.c` / `parser.h` — leitura e validação de arquivos `.lp` que representam matrizes ou escalares
-* `ui.c` / `ui.h` — interação com o terminal, prints e mensagens de erro
-* `types.h` — tipos auxiliares e enums que representam as operações
+* `main.c` — loop principal, inicialização da conexão e chamada das funções da biblioteca e pedidos de interação com o usuário.
+* `parser.h` — leitura e validação de arquivos `.lp` que representam matrizes ou escalares
+* `ui.h` — interação com o terminal.
+* `types.h` — tipos auxiliares.
 
 Destaque especial vai para o uso de uma **DSL (Domain Specific Language)** chamada *Laplace*, que facilita a entrada de dados pelo usuário. A linguagem permite:
 
 * Representação textual simples de matrizes e escalares
-* Comentários inline e sintaxe tolerante a erros
+* Comentários e sintaxe tolerante a erros
 * Detecção automática de tamanho da matriz
 * Validação detalhada com mensagens amigáveis
 
 A escolha pelo padrão **C99** foi deliberada. O projeto se beneficia de recursos como:
 
-* Tipos de largura fixa (`int8_t`, `uint32_t`, etc.)
+* Tipos de inteiros de tamanho fixo (`int8_t`, `uint32_t`, etc.)
 * Declarações dentro de blocos
 * Melhor suporte à modularização
 * Legibilidade e segurança de tipo
+* Regras de declaração de variáveis mais legíveis e intuitivas.
 
 Isso tudo contribui para que o código da aplicação seja mais robusto, moderno e fácil de manter, especialmente em comparação com o antigo padrão C89.
 
@@ -497,36 +501,37 @@ Essas definições asseguram que a matriz usada esteja sempre no formato fixo 5�
 
 ### 6.5 Funções da Biblioteca
 
-| Função                      | Objetivo                                                                             |
+| Função                | Objetivo                                                                             |
 | --------------------------- | ------------------------------------------------------------------------------------ |
-| `delay_us(int micros)`      | Aguarda o número desejado de microssegundos (sincronismo fino)                       |
-| `new_connection()`          | Abre `/dev/mem`, mapeia o bridge, retorna um `Connection`                            |
-| `close_connection()`        | Fecha o arquivo e desfaz o mapeamento                                                |
-| `mpu_build_basic_cmd()`     | Monta o comando base (32 bits) com `opcode`, `matrix_size`, `bit_val`, `bit_pos`     |
-| `next_stage()`              | Envia um `start_pulse` de 1 ciclo para avançar o estado na FSM                       |
-| `mpu_store(Matrix m)`       | Envia uma matriz inteira, bit a bit, para o hardware (25×8 = 200 ciclos por chamada) |
-| `mpu_load(Matrix *dest)`    | Lê os 25 bytes da matriz-resultado da FPGA e armazena no destino                     |
-| `mpu_init_default_matrix()` | Preenche a matriz com valores padrão para debug e testes rápidos                     |
+| `delay_1us`      | Aguarda o número desejado de microssegundos (sincronismo fino)                       |
+| `new_connection`          | Abre `/dev/mem`, mapeia o bridge, retorna um `Connection`                            |
+| `close_connection`        | Fecha o arquivo e desfaz o mapeamento                                                |
+| `build_base_cmd`     | Monta o comando base (32 bits) com `opcode`, `matrix_size`, `bit_val`, `bit_pos`     |
+| `next_stage`              | Envia um `start_pulse` de 1 ciclo para avançar o estado na FSM                       |
+| `store`       | Envia uma matriz inteira, bit a bit, para o hardware (25×8 = 200 ciclos por chamada) |
+| `load`    | Lê os 25 bytes da matriz-resultado da FPGA e armazena no destino                     |
+
+**Observação**: as funções acima tiveram o prefixo `mpu_` removido por questões de legibilidade. Porém quando usá-las em C ou Assembly, o mesmo é necessário.
 
 ---
 
 ### 6.6 Ciclo Típico de Operação
 
-1. `conn = new_connection();`
-2. `pio = map_pio(&conn);`
-3. `mpu_store(A);`
-4. `mpu_store(B);`
-5. `next_stage();`
-6. `mpu_load(R);`
-7. `close_connection();`
+1. Crie a conexão usando `new_connection`, ou `with_connection` do modulo `main.c`.
+2. Mapeie os PIOs de acordo com o endereço base e o offset:
+    - ```
+      PinIO pins = {
+        .cmd  = bridge.connection.base + PIO_CMD_OFFSET,
+        .stat = bridge.connection.base + PIO_STAT_OFFSET
+      };
+      ```
+3. Armazena a matriz A via `store`
+4. Armazena a matriz B via `store`
+5. Vai para próximo estágio via `next_stage`
+6. Carrega matrix resutado via `load`
+7. Fecha conexão via `close_connection` ao final do programa.
 
 O driver cuida de **todos os detalhes da comunicação**: carregamento das matrizes bit a bit, criação de pulsos, controle de estado e leitura sequencial do resultado.
-
----
-
-### 6.7 Interoperabilidade com Assembly
-
-Embora o código seja predominantemente em C, funções críticas (como `delay_us()` ou escritas atômicas com precisão de ciclo) podem ser otimizadas via Assembly ARMv7. Isso aumenta a precisão e evita instruções que o compilador poderia reordenar, especialmente em interações com a FPGA.
 
 ---
 
@@ -543,8 +548,8 @@ A aplicação é dividida em múltiplos arquivos-fonte, organizados por função
 | Arquivo      | Função                                                                      |
 | ------------ | --------------------------------------------------------------------------- |
 | `main.c`     | Entrada principal do programa. Gera o loop de interação e executa comandos. |
-| `parser.c/h` | Lê e interpreta os arquivos de entrada da mini-DSL (*Laplace*).             |
-| `ui.c/h`     | Lida com interação com o terminal. Mensagens, menus e feedbacks.            |
+| `parser.h` | Lê e interpreta os arquivos de entrada da mini-DSL (*Laplace*).             |
+| `ui.h`     | Lida com interação com o terminal. Mensagens, menus e feedbacks.            |
 | `types.h`    | Define os tipos auxiliares, enums de operações e seus nomes legíveis.       |
 
 Cada módulo é independente, facilitando manutenção, extensão e testes unitários.
@@ -557,7 +562,9 @@ O sistema utiliza uma linguagem de domínio específico (*DSL*) extremamente sim
 
 #### **Para matrizes**
 
-* Escritas em arquivos `.lp` (ex: `a.lp`, `b.lp`)
+* Escritas em arquivos `.lp`.
+  * `a.lp` e `b.lp` representam, respectivamente, as matrizes A e B.
+  * `scalar.lp` representa a entrada do escalar.
 * Cada linha com colchetes: `[1 0 -3 8 7]`
 * Linhas incompletas são **preenchidas com zeros**
 * Até 5 linhas ⇒ matriz 5×5
@@ -585,14 +592,20 @@ O sistema utiliza uma linguagem de domínio específico (*DSL*) extremamente sim
 
 ### 7.3 Enumerações e Mapeamentos
 
-No arquivo `types.h`, as operações possíveis são descritas por um `enum`:
+No arquivo `ui.h`, as operações possíveis são descritas por um `enum`:
 
 ```c
-typedef enum {
-    OP_ADD, OP_SUB, OP_MUL,
-    OP_MUL_SCALAR,
-    OP_DET_2x2, OP_DET_3x3
-} Operation;
+enum Operations {
+    Add = 0,
+    Sub = 1,
+    ScalarMult = 2,
+    Opposite = 3,
+    Transpose = 4,
+    Determinant = 5,
+    MatrixMult = 6,
+    Quit = 7,
+    InvalidOperation = 8
+};
 ```
 
 Esses valores têm um mapeamento direto para strings (`op_repr[]`), facilitando:
@@ -601,6 +614,20 @@ Esses valores têm um mapeamento direto para strings (`op_repr[]`), facilitando:
 * Geração do `op_code` enviado para o coprocessador
 * Depuração e logs
 
+```c
+const cstring op_repr[9] = {
+    [Add] = "Add",
+    [Sub] = "Sub",
+    [ScalarMult] = "Scalar multiplication",
+    [Opposite] = "Opposite",
+    [Transpose] = "Transpose",
+    [Determinant] = "Determinant",
+    [MatrixMult] = "Matrix multiplication",
+    [Quit] = "Quit",
+    [InvalidOperation] = "Invalid operation"
+};
+```
+
 ---
 
 ### 7.4 Macros de Segurança (`with-open`, `with-connect`)
@@ -608,8 +635,8 @@ Esses valores têm um mapeamento direto para strings (`op_repr[]`), facilitando:
 Inspiradas na estrutura `with` do Python, essas macros facilitam o uso de arquivos e conexões sem esquecer de fechá-los:
 
 ```c
-#define with_open(file, mode, var) for (FILE* var = fopen(file, mode); var; fclose(var), var = NULL)
-#define with_connect(conn) for (Connection conn = new_connection(); conn.fd >= 0; close_connection(&conn), conn.fd = -1)
+#define with_open(file, mode, var)
+#define with_connect(conn)
 ```
 
 Elas ajudam a evitar:
@@ -617,6 +644,8 @@ Elas ajudam a evitar:
 * Vazamento de recursos
 * Deadlocks em arquivos
 * Bugs silenciosos com conexões abertas
+
+Para isso, é necessário utilizar de um `for` loop, paraa iniciar, verificar e fechar o acesso. Vale ressaltar que esse recurso só está disponível no C99.
 
 ---
 
@@ -638,35 +667,7 @@ Elas ajudam a evitar:
 Durante esse fluxo, cada erro potencial é tratado com mensagens explicativas. Por exemplo:
 
 ```text
-[Erro] Valor fora do intervalo permitido (-128 a 127) na linha 2 de b.lp.
-[Erro] Falta colchete de abertura na linha 4.
-```
-
----
-
-### 7.6 Exemplo de Uso (interação esperada)
-
-```text
-[MENU PRINCIPAL]
-1) A + B
-2) A × B
-3) A × escalar
-4) det(A) (2×2)
-5) det(A) (3×3)
-0) Sair
-
-> Escolha: 2
-
-Informe o arquivo de A: a.lp
-Informe o arquivo de B: b.lp
-
-[FPGA] Enviando matrizes...
-[FPGA] Executando multiplicação...
-[FPGA] Resultado:
-
-[ 12  8  0  1  -7 ]
-[ 5  18  9  3  -2 ]
-[...]
+[line: 2] Invalid syntax.
 ```
 
 ---
@@ -696,12 +697,6 @@ Exemplo da matriz gerada:
 [ 16 17 18 19 20 ]
 [ 21 22 23 24 25 ]
 ```
-
----
-
-#### **2. Testes de Loopback (pio\_out → pio\_in)**
-
-Em simulação, os registradores eram temporariamente redirecionados para testar apenas a comunicação — o valor enviado por `pio_out` era diretamente lido em `pio_in`, validando o mapeamento correto e o acesso pela biblioteca.
 
 ---
 
@@ -747,13 +742,12 @@ Delays mínimos (`delay_us()`) foram ajustados para garantir que os pulsos `star
 O parser da DSL foi testado com dezenas de casos:
 
 * Linhas incompletas
-* Tipos fora do intervalo (`>127` ou `<-128`)
-* Erros de sintaxe (falta de colchetes, caracteres inválidos)
+* Tipos fora do intervalo
+* Erros de sintaxe
 * Matrizes maiores que 5×5
 
 Cada erro resultava em uma **mensagem clara e amigável**, sempre com:
 
-* Nome do arquivo
 * Número da linha
 * Descrição do erro
 * Exemplo de como corrigir
@@ -764,9 +758,7 @@ Cada erro resultava em uma **mensagem clara e amigável**, sempre com:
 
 No nível da FPGA, foram usadas as seguintes estratégias:
 
-* **Testbenches com ModelSim/Quartus**: permitiram simular a FSM isoladamente, verificando transições e tempo de resposta
 * **LEDs como marcadores de estado**: ajudaram a identificar rapidamente travamentos e loops inesperados
-* **Contadores de debug** (como `cycle_counter`, `load_cnt`, `byte_idx`) monitorados via LEDs ou sinais externos
 
 ---
 
